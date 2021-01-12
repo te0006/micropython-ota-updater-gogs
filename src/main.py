@@ -8,20 +8,20 @@ logger = lib.logger.config(enabled=env.settings['debug'], include=env.settings['
 log = logger(append='boot')
 log("The current time is %s" % t.human())
 
-logger = logger(append='OTAUpdater')
+loggerOta = logger(append='OTAUpdater')
 
-io = update.IO(os=os, logger=logger)
+io = update.IO(os=os, logger=loggerOta)
 github = update.GitHub(
   io=io,
   remote=env.settings['githubRemote'],
   branch=env.settings['githubRemoteBranch'],
-  logger=logger,
+  logger=loggerOta,
   requests=lib.requests,
   username=env.settings['githubUsername'],
   token=env.settings['githubToken'],
   base64=base64,
 )
-updater = update.OTAUpdater(io=io, github=github, logger=logger, machine=machine)
+updater = update.OTAUpdater(io=io, github=github, logger=loggerOta, machine=machine)
 
 try:
   updater.update()

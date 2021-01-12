@@ -10,7 +10,7 @@ Based off of [rdehuyss's MicroPython OTA Updater](https://github.com/rdehuyss/mi
 
 Edit `src/env.py` to fill in WiFi credentials, GitHub remote repository / branch and optional GitHub credentials to increase API limits.
 
-The `src/main.py` will call `updater.update()` which will pull down remote to the `src` directory.  After that it will execute `src.main` with the following kargs:
+Execution of `src/main.py` calls `updater.update()` checking `.version` file with the SHA of the latest commit.  If they are different it will create a new directory and pull down the `src` sub-directory.  Once complete, the old `src` directory is deleted and the new copy is moved in its place.  After that it will execute `src.main` with the following kargs:
 ```
 import src.main
 src.main.start(env=env, requests=lib.requests, logger=logger, time=t, updater=updater)
@@ -34,7 +34,7 @@ Power cycle the ESP32, you should see the updater pull down HEAD of the configur
 
 ## Secrets
 
-Use `src/env.py` to store secrets that will be passed to `main.start()` so they do not need be stored in the main repository.
+Use `src/env.py` to store secrets that will be passed to `main.start()` so they do not need be stored in the main repository.  This file is not updated via OTA and needs to be replaced manually by flashing.
 
 ## Interval Updating
 
