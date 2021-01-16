@@ -113,8 +113,6 @@ class OTAUpdater:
     self.io.writeFile(self.nextDir + '/' + self.versionFile, remoteSha)
     self.io.rmtree(self.mainDir)
     self.io.move(self.nextDir, self.mainDir)
-    self.machine.reset()
-
 
 class GitHub:
   def __init__(self, requests=None, remote=None, io=None, logger=None, branch='master', username='', token='', base64=None):
