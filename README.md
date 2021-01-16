@@ -10,7 +10,7 @@ Based off of [rdehuyss's MicroPython OTA Updater](https://github.com/rdehuyss/mi
 
 Edit `src/env.py` to fill in WiFi credentials, GitHub remote repository / branch and optional [GitHub credentials](https://github.com/settings/tokens) to increase API limits (GitHub limits unauthorized users to 50 api calls).  Deploy!
 
-For an example implementation check out the [my-grow project](https://github.com/smysnk/my-grow).
+For an example implementation check out the [my-grow project](https://github.com/smysnk/my-grow/blob/master/src/main.py).
 
 ## Deployment
 
