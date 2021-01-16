@@ -8,15 +8,9 @@ Based off of [rdehuyss's MicroPython OTA Updater](https://github.com/rdehuyss/mi
 
 ## Gettings started
 
-Edit `src/env.py` to fill in WiFi credentials, GitHub remote repository / branch and optional GitHub credentials to increase API limits.
+Edit `src/env.py` to fill in WiFi credentials, GitHub remote repository / branch and optional [GitHub credentials](https://github.com/settings/tokens) to increase API limits (GitHub limits unauthorized users to 50 api calls).  Deploy!
 
-Execution of `src/main.py` calls `updater.update()` checking `.version` file with the SHA of the latest commit.  If they are different it will create a new directory and pull down the `src` sub-directory.  Once complete, the old `src` directory is deleted and the new copy is moved in its place.  After that it will execute `src.main` with the following kargs:
-```
-import src.main
-src.main.start(env=env, requests=lib.requests, logger=logger, time=t, updater=updater)
-```
-
-For example implementation check out the [my-grow project](https://github.com/smysnk/my-grow).
+For an example implementation check out the [my-grow project](https://github.com/smysnk/my-grow).
 
 ## Deployment
 
@@ -30,7 +24,15 @@ For example implementation check out the [my-grow project](https://github.com/sm
 
 `make repl` # Opens a repl terminal to the ESP32
 
-Power cycle the ESP32, you should see the updater pull down HEAD of the configured branch on boot.
+Power cycle (Ctrl-D) the ESP32, you should see the updater pull down HEAD of the configured branch on boot.
+
+## Internals
+
+Execution of `src/main.py` calls `updater.update()` checking `.version` file with the SHA of the latest commit.  If they are different it will create a new directory and pull down the `src` sub-directory.  Once complete, the old `src` directory is deleted and the new copy is moved in its place.  After that it will execute `src.main` with the following kargs:
+```
+import src.main
+src.main.start(env=env, requests=lib.requests, logger=logger, time=t, updater=updater)
+```
 
 ## Secrets
 
@@ -48,3 +50,4 @@ if state['runtime'][runtime.OTA_AUTO_UPDATE_INTERVAL] and time.time() % state['r
   except Exception as e:
     log('Failed to check for OTA update:', e)
 ```
+
