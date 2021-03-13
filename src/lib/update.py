@@ -1,3 +1,4 @@
+import binascii
 class IO:
   def __init__(self, os=None, logger=None):
     self.os = os
@@ -71,10 +72,10 @@ class OTAUpdater:
     versionFile='.version',
     machine=None,
     io=None,
-    github=None,
+    gogs=None,
     logger=None,
   ):
-    self.github = github
+    self.gogs = gogs
     self.mainDir = mainDir
     self.nextDir = nextDir
     self.versionFile = versionFile
@@ -90,7 +91,7 @@ class OTAUpdater:
     except:
       self.log('No version file found.', name="compare")
 
-    remoteSha = self.github.sha()
+    remoteSha = self.gogs.sha()
 
     self.log('Local SHA: ', localSha)
     self.log('Remote SHA: ', remoteSha)
@@ -109,43 +110,46 @@ class OTAUpdater:
 
     self.io.rmtree(self.nextDir)
     self.io.mkdir(self.nextDir)
-    self.github.download(remoteSha, self.nextDir, base=self.mainDir)
+    self.gogs.download(remoteSha, self.nextDir, base=self.mainDir)
     self.io.writeFile(self.nextDir + '/' + self.versionFile, remoteSha)
     self.io.rmtree(self.mainDir)
     self.io.move(self.nextDir, self.mainDir)
 
-class GitHub:
-  def __init__(self, requests=None, remote=None, io=None, logger=None, branch='master', username='', token='', base64=None):
-    self.requests = requests
-    self.remote = remote.rstrip('/').replace('https://github.com', 'https://api.github.com/repos')
-    self.io = io
-    self.log = logger(append='github')
+class Gogs:
+  def __init__(self, remote=None, branch='master', token='', requests=None, io=None, logger=None):
+    proto, rest = remote.split("//")
+    slash_i = rest.find("/")
+    proto_host_port = proto + "//"+rest[:slash_i]
+    user_repo = rest[slash_i:] # leading /
+    self.remote = proto_host_port + "/api/v1/repos"+user_repo
     self.branch = branch
+    self.token = token
+    self.requests = requests
+    self.io = io
+    self.log = logger(append='gogs')
     self.logger = logger
 
-    if username and token:
-      self.headers = {'Authentication': 'Basic %s' % base64.b64encode(b'%s:%s' % (username, token))}
-    else:
-      self.headers = {}
-
   def sha(self):    
-    result = self.requests.get('%s/commits?per_page=1&sha=%s' % (self.remote, self.branch), logger=self.logger, headers=self.headers)
+    result = self.requests.get('%s/commits/refs/heads/%s?token=%s' % (self.remote, self.branch, self.token), logger=self.logger)
     if result.status_code == 200:
-      sha = result.json()[0]['sha']
+      sha = result.text # .json()[0]['sha']
     else:
       raise Exception('Unexpected response from GitHub: %d:%s' % (result.status_code, result.reason))
     result.close()
     return sha
     
+  def save(self, blob, file):
+    with open(file, 'w') as outfile:
+        outfile.write(blob)
+        outfile.close()  
+  
   def download(self, sha=None, destination=None, currentDir='', base=''):
-    fileList = self.requests.get('%s/contents/%s?ref=%s' % (self.remote, self.io.path(base, currentDir), sha), logger=self.logger, headers=self.headers)
-
+    fileList = self.requests.get('%s/contents/%s?ref=%s&token=%s' % (self.remote, self.io.path(base, currentDir), sha, self.token), logger=self.logger, headers={})
     for file in fileList.json():
       if file['type'] == 'file':
-        result = self.requests.get(file['download_url'], logger=self.logger, headers=self.headers)
-        result.save(self.io.path(destination, currentDir, file['name']))
+        result = binascii.a2b_base64(file['content'])
+        self.save(result, self.io.path(destination, currentDir, file['name']))
       elif file['type'] == 'dir':
         self.io.mkdir(self.io.path(destination, currentDir, file['name']))
         self.download(sha=sha, destination=destination, currentDir=self.io.path(currentDir, file['name']), base=base)
-
     fileList.close()

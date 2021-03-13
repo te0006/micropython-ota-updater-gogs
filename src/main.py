@@ -1,5 +1,4 @@
 import update, env, lib.requests, lib.logger, lib.requests, lib.timew, time, os, machine
-from lib import base64
 
 t = lib.timew.Time(time=time)
 
@@ -11,17 +10,15 @@ log("The current time is %s" % t.human())
 loggerOta = logger(append='OTAUpdater')
 
 io = update.IO(os=os, logger=loggerOta)
-github = update.GitHub(
+gogs = update.Gogs(
+  remote=env.settings['gogsRemote'],
+  branch=env.settings['gogsBranch'],
+  token=env.settings['gogsToken'],
+  requests = lib.requests,
   io=io,
-  remote=env.settings['githubRemote'],
-  branch=env.settings['githubRemoteBranch'],
   logger=loggerOta,
-  requests=lib.requests,
-  username=env.settings['githubUsername'],
-  token=env.settings['githubToken'],
-  base64=base64,
 )
-updater = update.OTAUpdater(io=io, github=github, logger=loggerOta, machine=machine)
+updater = update.OTAUpdater(io=io, gogs=gogs, logger=loggerOta, machine=machine)
 
 try:
   updater.update()

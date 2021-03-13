@@ -70,13 +70,14 @@ def request(method, url, data=None, json=None, headers={}, stream=None, timeout=
   s = usocket.socket(ai[0], ai[1], ai[2])
   s.settimeout(timeout)
   try:
-    log('%s %s %s' % (method, host, path), name='connect')
+    log('%s %s %s %s %s' % (method, proto, host, port, path), name='connect')
     s.connect(ai[-1])
     if proto == "https:":
+      log("SSL!")
       s = ussl.wrap_socket(s, server_hostname=host)
     s.write(b"%s /%s HTTP/1.0\r\n" % (method, path))
     if not "Host" in headers:
-      s.write(b"Host: %s\r\n" % host)
+      s.write(b"Host: %s:%s\r\n" % (host, port))
     # Iterate over keys to avoid tuple alloc
     for k in headers:
       s.write(k)
