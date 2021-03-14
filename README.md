@@ -6,7 +6,7 @@ Based off of [Joshua Bellamys fork of rdehuyss's MicroPython OTA Updater](https:
 
 > Note: due to a bug in the SSL library of ESP8266 devices, micropython-ota-updater cannot be used on these devices. See https://github.com/rdehuyss/micropython-ota-updater/issues/6 and https://github.com/micropython/micropython/issues/6737
 
-## Gettings started
+## Getting started
 
 Edit `src/env.py` to fill in WiFi credentials, Gogs remote repository, branch , and an access token generated in Gogs' user management.  Deploy!
 
