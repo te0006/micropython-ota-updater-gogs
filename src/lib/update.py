@@ -139,6 +139,7 @@ class Gogs:
     return sha
     
   def save(self, blob, file):
+    self.log('OTA-> ', file)
     with open(file, 'w') as outfile:
         outfile.write(blob)
         outfile.close()  
@@ -150,6 +151,8 @@ class Gogs:
         result = binascii.a2b_base64(file['content'])
         self.save(result, self.io.path(destination, currentDir, file['name']))
       elif file['type'] == 'dir':
-        self.io.mkdir(self.io.path(destination, currentDir, file['name']))
+        dn = file['name']
+        self.log('OTA-> ', dn+"/")
+        self.io.mkdir(self.io.path(destination, currentDir, dn))
         self.download(sha=sha, destination=destination, currentDir=self.io.path(currentDir, file['name']), base=base)
     fileList.close()
