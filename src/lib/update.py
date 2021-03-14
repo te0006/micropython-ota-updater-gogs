@@ -134,7 +134,7 @@ class Gogs:
     if result.status_code == 200:
       sha = result.text # .json()[0]['sha']
     else:
-      raise Exception('Unexpected response from GitHub: %d:%s' % (result.status_code, result.reason))
+      raise Exception('Unexpected response from Gogs: %d:%s' % (result.status_code, result.reason))
     result.close()
     return sha
     
