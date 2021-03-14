@@ -2,13 +2,21 @@
 
 ## Overview
 
-Based off of [Joshua Bellamys fork of rdehuyss's MicroPython OTA Updater](https://github.com/smysnk/micropython-ota-updater). This MicroPython Over-The-Air Updater will follow a Gogs (https://gogs.io , or self-hosted using https://github.com/gogs/gogs) branch, checking for updates on boot.  Will update if HEAD is not current (other release strategies may be added later).
+Based off of [Joshua Bellamys fork of rdehuyss's MicroPython OTA Updater](https://github.com/smysnk/micropython-ota-updater). 
+
+Unlike these previous projects (which offer OTA updates from GitHub repositories) this project provides MicroPython OTA updating from a Gogs repository. [Gogs](https://gogs.io , https://github.com/gogs/gogs) is a Git server similar to a subset of GitHub or GitLab, written in golang, and lightweight enough to be deployed on a Raspberry Pi.
+
+During boot, the updater (`update.py`) is called from main.py, checks the designated branch for updates and downloads them if HEAD is not current (other release strategies may be added later).
 
 > Note: due to a bug in the SSL library of ESP8266 devices, micropython-ota-updater cannot be used on these devices. See https://github.com/rdehuyss/micropython-ota-updater/issues/6 and https://github.com/micropython/micropython/issues/6737
 
 ## Getting started
 
-Edit `src/env.py` to fill in WiFi credentials, Gogs remote repository, branch , and an access token generated in Gogs' user management.  Deploy!
+Create `src/wifisettings.py` by editing `src_wifisettings.py.template` and filling in WiFi credentials and DNS name of the pyboard.
+
+Create `src/nodesettings.py` by editing `src_nodesettings.py.template` and editing Gogs remote repository, branch , and a Gogs access token generated in Gogs' user management.  
+
+Deploy!
 
 For an example implementation check out the [???] project.
 
@@ -34,9 +42,11 @@ import src.main
 src.main.start(env=env, requests=lib.requests, logger=logger, time=t, updater=updater)
 ```
 
+Note: main.py and boot.py in the pyboard's root directory are never overwritten by the OTA update; they remain as they were transferred by `make rsync` .
+
 ## Secrets
 
-Use `src/env.py` to store secrets that will be passed to `main.start()` so they do not need be stored in the main repository.  This file is not updated via OTA and needs to be replaced manually by flashing.
+The files `src/wifisettings.py` and `src/nodesettings.py` are used to store secrets that will be used to configure the pyboard's WiFi, or will be passed to `main.start()`, respectively. These files SHALL NOT be stored in the repository, and so they will not be updated via OTA. Thus they need to be transferred/updated manually by `make rsync`.
 
 ## Interval Updating
 
