@@ -10,4 +10,4 @@ settings = {
   'gogsBranch': 'master',
   'gogsToken': '1234567890abcdef123456789', # generated in your Gogs user settings
 }
-settings['gogsRemote'] = "%s/%s" (settings['gogsBase'], settings['controllerName']) # Repo for 
+settings['gogsRemote'] = "%s/%s" % (settings['gogsBase'], settings['controllerName']) # Repo for 
