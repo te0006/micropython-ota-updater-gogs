@@ -2,15 +2,15 @@
 
 ## Overview
 
-Based off of [rdehuyss's MicroPython OTA Updater](https://github.com/rdehuyss/micropython-ota-updater). This MicroPython Over-The-Air Updater will follow a GitHub branch, checking for updates on boot.  Will update if HEAD is not current (other release strategies may be added later).
+Based off of [Joshua Bellamys fork of rdehuyss's MicroPython OTA Updater](https://github.com/smysnk/micropython-ota-updater). This MicroPython Over-The-Air Updater will follow a Gogs (https://gogs.io , or self-hosted using https://github.com/gogs/gogs) branch, checking for updates on boot.  Will update if HEAD is not current (other release strategies may be added later).
 
 > Note: due to a bug in the SSL library of ESP8266 devices, micropython-ota-updater cannot be used on these devices. See https://github.com/rdehuyss/micropython-ota-updater/issues/6 and https://github.com/micropython/micropython/issues/6737
 
 ## Gettings started
 
-Edit `src/env.py` to fill in WiFi credentials, GitHub remote repository / branch and optional [GitHub credentials](https://github.com/settings/tokens) to increase API limits (60 per hour to 5000).  Deploy!
+Edit `src/env.py` to fill in WiFi credentials, Gogs remote repository, branch , and an access token generated in Gogs' user management.  Deploy!
 
-For an example implementation check out the [my-grow project](https://github.com/smysnk/my-grow/blob/master/src/main.py).
+For an example implementation check out the [???] project.
 
 ## Deployment
 
