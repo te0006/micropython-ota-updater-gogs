@@ -6,7 +6,8 @@ settings = {
   'httpTimeout': 5, # seconds
 
   # Auto-Updating
-  'gogsRemote': 'http://aaa.bbb.ccc.ddd:pppp/gogs/nodeXYZ',   # URL of mpy prject Repo in the Gogs server
+  'gogsBase': 'http://aaa.bbb.ccc.ddd:pppp/gogs/nodeXYZ',  # Base URL of all Repos in your Gogs server
   'gogsBranch': 'master',
   'gogsToken': '1234567890abcdef123456789', # generated in your Gogs user settings
 }
+settings['gogsRemote'] = "%s/%s" (settings['gogsBase'], settings['controllerName']) # Repo for 
