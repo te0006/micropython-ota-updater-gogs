@@ -28,7 +28,7 @@ For an example implementation check out the [???] project.
 
 `make image` # Install MicroPython on ESP32
 
-`make rsync` # Install `updater` on ESP32
+`make rsync` # Install `updater` (contents of 'src' folder of this repo) to pyboard (root folder)
 
 `make repl` # Opens a repl terminal to the ESP32
 
@@ -36,17 +36,18 @@ Power cycle (Ctrl-D) the ESP32, you should see the updater pull down HEAD of the
 
 ## Internals
 
-Execution of `src/main.py` calls `updater.update()` checking `.version` file with the SHA of the latest commit.  If they are different it will create a new directory and pull down the `src` sub-directory.  Once complete, the old `src` directory is deleted and the new copy is moved in its place.  After that it will execute `src.main` with the following kargs:
+Execution of `main.py` calls `updater.update()` checking `.version` file with the SHA of the latest commit.  If they are different it will create a new directory and pull down the `src` sub-directory of that repo.  Once complete, the old `src` directory is deleted and the new copy is moved in its place.  After that it will execute `src.main` with the following kargs:
 ```
 import src.main
 src.main.start(env=env, requests=lib.requests, logger=logger, time=t, updater=updater)
 ```
 
 Note: main.py and boot.py in the pyboard's root directory are never overwritten by the OTA update; they remain as they were transferred by `make rsync` .
+The OTA updater only installs into the 'src/' folder  of the pyboard.
 
 ## Secrets
 
-The files `src/wifisettings.py` and `src/nodesettings.py` are used to store secrets that will be used to configure the pyboard's WiFi, or will be passed to `main.start()`, respectively. These files SHALL NOT be stored in the repository, and so they will not be updated via OTA. Thus they need to be transferred/updated manually by `make rsync`.
+The files `src/wifisettings.py` and `src/nodesettings.py` are used to store secrets that will be used to configure the pyboard's WiFi, or will be passed to `main.start()`, respectively. These files SHALL NOT be stored in the repository, and so they will not be updated via OTA. Thus they need to be transferred/updated manually by `make rsync` which will put them in the pyboard's root directory, where they won't be affected by OTA updates.
 
 ## Interval Updating
 
