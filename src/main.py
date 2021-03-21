@@ -67,6 +67,10 @@ env['wdt'] = WDT(timeout=5000) # watchdog timer. If feed() is not called every 5
     # the main loop (within src.main.start) calls feed() periodically but will stop doing so in case of an exception
     # If communication to the MQTT broker fails, an exception will occur.
     # Thus, the system can be remote-reset by stopping the MQTT broker.
+    # Due to measures in micropython-ota-updater-gogs/src/main.py, the system will then boot-loop 
+    # until the MQTT server is accesible again, and then check for an OTA update.
+    # In summary, after an update of the node code has been published on Gogs, nodes can be forced to load it 
+    # by stopping the MQTT broker service for a short while. 
 
 def mqtt_pub(tag, data):
     client.publish(mqtt_pth+"/"+tag, 
