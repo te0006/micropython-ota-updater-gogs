@@ -1,4 +1,7 @@
+# settings in this file will be used for all nodes
 settings = {
   'wifiAP': 'my-wifi',
-  'wifiPassword': 'my-wifi-pass'
+  'wifiPassword': 'my-wifi-pass',
+  'mqtt_ip': 'xxx.xxx.xxx.xxx',  
+  'mqtt_port': 1883
 }

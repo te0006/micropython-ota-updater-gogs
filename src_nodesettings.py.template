@@ -1,5 +1,6 @@
+# settings in this file will be used for the specific node - each must habe its own instance
 settings = {
-  'controllerName': 'nodeXYZ', # Used for DHCP hostname
+  'controllerName': 'nodeXYZ', # Used for DHCP hostname, and as prefix for MQTT topic
   'logInclude': ['.*'], # regex supported
   'logExclude': [], # regex supported
   'debug' : True,
