@@ -6,9 +6,21 @@ Based off of [Joshua Bellamys fork of rdehuyss's MicroPython OTA Updater](https:
 
 Unlike these previous projects (which offer OTA updates from GitHub repositories) this project provides MicroPython OTA updating from a Gogs repository. [Gogs](https://gogs.io , https://github.com/gogs/gogs) is a Git server similar to a subset of GitHub or GitLab, written in golang, and lightweight enough to be deployed on a Raspberry Pi.
 
-During boot, the updater (`update.py`) is called from main.py, checks the designated branch for updates and downloads them if HEAD is not current (other release strategies may be added later).
+Also this variant is focused on nodes which are MQTT clients. 
 
-> Note: due to a bug in the SSL library of ESP8266 devices, micropython-ota-updater cannot be used on these devices. See https://github.com/rdehuyss/micropython-ota-updater/issues/6 and https://github.com/micropython/micropython/issues/6737
+After boot, a connection to an MQTT broker is attempted. If it fails, the system reboots after a short wait. I. e. the process will only continue once the MQTT broker is accessible.
+
+Then the updater (`update.py`) is called, checks the designated branch for updates and downloads them if HEAD is not current (other release strategies may be added later).
+
+Finally, the node software stored on the pyboard (and possibly just updated OTA) is launched.
+However, a watchdog process is launched as well which the node software has to feed regulary.
+If it stops to do so (e.g. because the node software has crashed), the watchdog will reset the pyboard, and the process bgins anew.
+
+Thus an OTA update can be triggered for all nodes by stopping the MQTT broker for a short while.
+
+## Hardware compatibility
+
+This software was tested on ESP32 only and will likely not work on ESP8266.
 
 ## Getting started
 
@@ -36,11 +48,7 @@ Power cycle (Ctrl-D) the ESP32, you should see the updater pull down HEAD of the
 
 ## Internals
 
-Execution of `main.py` calls `updater.update()` checking `.version` file with the SHA of the latest commit.  If they are different it will create a new directory and pull down the `src` sub-directory of that repo.  Once complete, the old `src` directory is deleted and the new copy is moved in its place.  After that it will execute `src.main` with the following kargs:
-```
-import src.main
-src.main.start(env=env, requests=lib.requests, logger=logger, time=t, updater=updater)
-```
+Execution of `main.py` calls `updater.update()` checking `.version` file with the SHA of the latest commit.  If they are different it will create a new directory and pull down the `src` sub-directory of that repo.  Once complete, the old `src` directory is deleted and the new copy is moved in its place.  After that it will execute `src.main.start()` with environment settings passed in the "env" argument.
 
 Note: main.py and boot.py in the pyboard's root directory are never overwritten by the OTA update; they remain as they were transferred by `make rsync` .
 The OTA updater only installs into the 'src/' folder  of the pyboard.
@@ -48,17 +56,3 @@ The OTA updater only installs into the 'src/' folder  of the pyboard.
 ## Secrets
 
 The files `src/wifisettings.py` and `src/nodesettings.py` are used to store secrets that will be used to configure the pyboard's WiFi, or will be passed to `main.start()`, respectively. These files SHALL NOT be stored in the repository, and so they will not be updated via OTA. Thus they need to be transferred/updated manually by `make rsync` which will put them in the pyboard's root directory, where they won't be affected by OTA updates.
-
-## Interval Updating
-
-You may want to check for updates a regularly scheduled intervals eg. every hour. Here is an [example implementation](https://github.com/smysnk/my-grow/blob/master/src/sensorloop.py#L216):
-```
-# Reset the device if an update is available
-if state['runtime'][runtime.OTA_AUTO_UPDATE_INTERVAL] and time.time() % state['runtime'][runtime.OTA_AUTO_UPDATE_INTERVAL] == 0:
-  try:
-    gc.collect()
-    updater.checkForUpdate()
-  except Exception as e:
-    log('Failed to check for OTA update:', e)
-```
-
