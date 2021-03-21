@@ -32,6 +32,10 @@ if not mq_c:
 log('MQTT: connected OK')
 led.off()
 
+def mqtt_pub(tag, data):
+    client.publish(mqtt_pth+"/"+tag, 
+    data)
+
 loggerOta = logger(append='OTAUpdater')
 
 io = update.IO(os=os, logger=loggerOta)
@@ -48,18 +52,18 @@ updater = update.OTAUpdater(io=io, gogs=gogs, logger=loggerOta, machine=machine)
 try:
   updater.update()
   log('OTA update OK')
-  client.publish(mqtt_pth+"/BOOT", "OTA_OK")
+  mqtt_pub("boot", "OTA_OK")
   led.off()
 except Exception as e:
   log('Failed to OTA update:', e)
-  client.publish(mqtt_pth+"/BOOT", "OTA_error")
+  mqtt_pub("boot", "OTA_error")
   led.on()
 
 
 env = {}
 env.update(nodesettings.settings)
 env['requests'] = lib.requests
-env['logger'] = logger
+env['log'] = logger(append='main')
 env['time'] = t
 env['updater'] = updater
 
@@ -72,9 +76,6 @@ env['wdt'] = WDT(timeout=5000) # watchdog timer. If feed() is not called every 5
     # In summary, after an update of the node code has been published on Gogs, nodes can be forced to load it 
     # by stopping the MQTT broker service for a short while. 
 
-def mqtt_pub(tag, data):
-    client.publish(mqtt_pth+"/"+tag, 
-    data)
 
 env['mqtt_pub'] = mqtt_pub
 env['wdt'].feed()
