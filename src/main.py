@@ -33,8 +33,19 @@ log('MQTT: connected OK')
 led.off()
 
 def mqtt_pub(tag, data):
+    """publish a message to the MQTT broker"""
     client.publish(mqtt_pth+"/"+tag, 
     data)
+
+def mqtt_sub(sub_callback):
+    """subscribe to MQTT topic given by controllername and register a callback"""
+    client.set_callback(sub_callback)
+    client.subscribe(mqtt_pth+"/#")
+    print("MQTT SUBSCRIBED TO: ", repr(mqtt_pth+"/#"))
+    
+def mqtt_ping():
+    """ping the MQTT broker"""
+    client.ping()
 
 loggerOta = logger(append='OTAUpdater')
 
@@ -52,11 +63,11 @@ updater = update.OTAUpdater(io=io, gogs=gogs, logger=loggerOta, machine=machine)
 try:
   updater.update()
   log('OTA update OK')
-  mqtt_pub("boot", "OTA_OK")
+  mqtt_pub("boot/status", "OTA_OK")
   led.off()
 except Exception as e:
   log('Failed to OTA update:', e)
-  mqtt_pub("boot", "OTA_error")
+  mqtt_pub("boot/status", "OTA_error")
   led.on()
 
 
@@ -78,7 +89,10 @@ env['wdt'] = WDT(timeout=5000) # watchdog timer. If feed() is not called every 5
 
 
 env['mqtt_pub'] = mqtt_pub
-env['wdt'].feed()
+env['mqtt_ping'] = mqtt_ping
+env['mqtt_sub'] = mqtt_sub
+env['mqtt_check_msg'] = client.check_msg
+env['wdt'].feed() # first food for watchdog
 
 log('launching src.main.start()')
 import src.main
