@@ -32,10 +32,10 @@ if not mq_c:
 log('MQTT: connected OK')
 led.off()
 
-def mqtt_pub(tag, data):
+def mqtt_pub(tag, data, retain=False):
     """publish a message to the MQTT broker"""
     client.publish(mqtt_pth+"/"+tag, 
-    data)
+    data, retain)
 
 def mqtt_sub(sub_callback):
     """subscribe to MQTT topic given by controllername and register a callback"""
